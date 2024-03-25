@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* Hide scrollbars */
+    }
+    video {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      z-index: -1;
+      transform: translate(-50%, -50%);
+    }
+    .glass-card {
+      position: relative;
+      z-index: 1;
+      width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255, 0.3); /* Glass background */
+      backdrop-filter: blur(10px); /* Blur effect */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow */
+    }
+    .content {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+      background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent background */
+      padding: 20px;
+      border-radius: 10px;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      border: 1px solid black;
+      font-size: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background-color: #ffffff;
+    }
+    #message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      display: none;
+      z-index: 999;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <video autoplay muted loop>
+    <source src="1.mp4" type="video/mp4"> 
+    Your browser does not support the video tag.
+  </video>
+  
+  <div class="glass-card">
+    <div>
+      <label for="players">Select number of players:</label>
+      <select id="players">
+        <option value="1">1 Player</option>
+        <option value="2">2 Players</option>
+      </select>
+      <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <div class="content" id="board" style="display: none;">
+      <div class="cell" onclick="placeMark(0)"></div>
+      <div class="cell" onclick="placeMark(1)"></div>
+      <div class="cell" onclick="placeMark(2)"></div>
+      <div class="cell" onclick="placeMark(3)"></div>
+      <div class="cell" onclick="placeMark(4)"></div>
+      <div class="cell" onclick="placeMark(5)"></div>
+      <div class="cell" onclick="placeMark(6)"></div>
+      <div class="cell" onclick="placeMark(7)"></div>
+      <div class="cell" onclick="placeMark(8)"></div>
+    </div>
+  </div>
+
+  <div id="message"></div>
+  <button onclick="replay()" id="replayBtn" style="display: none;">Replay</button>
+
+  
+
+
+  <script>
+    let currentPlayer;
+    let isAutoPlayer;
+    let autoPlayerDifficulty = 0.5; // Adjust the difficulty level (0.1 to 1)
+    const board = document.getElementById('board');
+    const cells = document.querySelectorAll('.cell');
+    const message = document.getElementById('message');
+    const replayBtn = document.getElementById('replayBtn');
+
+    const winningConditions = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+
+    function startGame() {
+  const numPlayers = document.getElementById('players').value;
+  if (numPlayers === '1') {
+    isAutoPlayer = true;
+    currentPlayer = 'X';
+  } else {
+    isAutoPlayer = false;
+    currentPlayer = 'X';
+  }
+  document.getElementById('board').style.display = 'grid'; // Show the game board
+  document.querySelector('.glass-card > div').style.display = 'none'; // Hide the player selection controls
+}
+
+
+    function placeMark(cellIndex) {
+      if (cells[cellIndex].innerText === '') {
+        cells[cellIndex].innerText = currentPlayer;
+        if (checkWin()) {
+          message.innerText = `Player ${currentPlayer} wins!`;
+          message.style.display = 'block'; // Show the message
+          replayBtn.style.display = 'inline-block';
+          disableCells();
+        } else if (checkDraw()) {
+          message.innerText = 'It\'s a draw!';
+          message.style.display = 'block'; // Show the message
+          replayBtn.style.display = 'inline-block';
+        } else {
+          currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+          if (isAutoPlayer && currentPlayer === 'O') {
+            autoPlay();
+          }
+          message.style.display = 'none'; // Hide the message
+        }
+      }
+    }
+
+    function autoPlay() {
+      let emptyCells = [];
+      cells.forEach((cell, index) => {
+        if (cell.innerText === '') {
+          emptyCells.push(index);
+        }
+      });
+      const randomIndex = Math.random();
+      let indexToPlay;
+      if (randomIndex < autoPlayerDifficulty) {
+        // Random move
+        indexToPlay = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+      } else {
+        // AI move (trying to block or win)
+        indexToPlay = getAIMove();
+      }
+      placeMark(indexToPlay);
+    }
+
+    function getAIMove() {
+      // Priority 1: Block player 1 from winning
+      for (let condition of winningConditions) {
+        const [a, b, c] = condition;
+        if (cells[a].innerText === 'X' && cells[b].innerText === 'X' && cells[c].innerText === '') {
+          return c;
+        } else if (cells[a].innerText === 'X' && cells[c].innerText === 'X' && cells[b].innerText === '') {
+          return b;
+        } else if (cells[b].innerText === 'X' && cells[c].innerText === 'X' && cells[a].innerText === '') {
+          return a;
+        }
+      }
+      
+      // Priority 2: Win if possible
+      for (let condition of winningConditions) {
+        const [a, b, c] = condition;
+        if (cells[a].innerText === 'O' && cells[b].innerText === 'O' && cells[c].innerText === '') {
+          return c;
+        } else if (cells[a].innerText === 'O' && cells[c].innerText === 'O' && cells[b].innerText === '') {
+          return b;
+        } else if (cells[b].innerText === 'O' && cells[c].innerText === 'O' && cells[a].innerText === '') {
+          return a;
+        }
+      }
+      
+      // Priority 3: Random move
+      let emptyCells = [];
+      cells.forEach((cell, index) => {
+        if (cell.innerText === '') {
+          emptyCells.push(index);
+        }
+      });
+      return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    }
+
+    function checkWin() {
+      return winningConditions.some(condition => {
+        return condition.every(index => cells[index].innerText === currentPlayer);
+      });
+    }
+
+    function checkDraw() {
+      return [...cells].every(cell => cell.innerText !== '');
+    }
+
+    function disableCells() {
+      cells.forEach(cell => cell.onclick = null);
+    }
+
+    function replay() {
+      location.reload();
+    }
+  </script>
+</body>
+</html>
+
+       
