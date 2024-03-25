@@ -6,6 +6,12 @@
   <title>Tic Tac Toe</title>
   <style>
     body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      position: relative; /* Ensure positioning relative for absolute positioning of message */
       margin: 0;
       padding: 0;
       overflow: hidden; /* Hide scrollbars */
@@ -23,22 +29,21 @@
     }
     .glass-card {
       position: relative;
-      z-index: 1;
-      width: 400px;
-      margin: 20px auto;
-      padding: 20px;
-      border-radius: 10px;
-      background-color: rgba(255, 255, 255, 0.3); /* Glass background */
-      backdrop-filter: blur(10px); /* Blur effect */
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow */
+      width: 334.8px; /* Adjust the width of the card */
+      padding: 50px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 1; /* Ensure card is above video */
     }
     .content {
       display: grid;
       grid-template-columns: repeat(3, 100px);
       grid-gap: 5px;
-      background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent background */
-      padding: 20px;
-      border-radius: 10px;
+      background-color: #000000; /* Adjust as needed */
+      padding: 10px; /* Adjust as needed */
+      border-radius: 5px; /* Adjust as needed */
     }
     .cell {
       width: 100px;
@@ -49,32 +54,32 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      background-color: #ffffff;
+      background-color: #ffffff; /* Adjust as needed */
     }
     #message {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
+      position: fixed; /* Fixed positioning for the message */
+      top: 20px; /* Adjust as needed */
+      left: 50%; /* Center horizontally */
+      transform: translateX(-50%); /* Center horizontally */
       background-color: rgba(0, 0, 0, 0.8);
       color: white;
       padding: 10px 20px;
       border-radius: 5px;
-      display: none;
-      z-index: 999;
+      display: none; /* Initially hidden */
+      z-index: 999; /* Ensure it's on top */
     }
     button {
-      margin-top: 10px;
+      margin-top: 10px; /* Adjust as needed */
       padding: 10px 20px;
-      font-size: 16px;
-      background-color: #007bff;
+      font-size: 16px; /* Adjust as needed */
+      background-color: #007bff; /* Adjust as needed */
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     button:hover {
-      background-color: #0056b3;
+      background-color: #0056b3; /* Adjust as needed */
     }
   </style>
 </head>
@@ -83,7 +88,6 @@
     <source src="1.mp4" type="video/mp4"> 
     Your browser does not support the video tag.
   </video>
-  
   <div class="glass-card">
     <div>
       <label for="players">Select number of players:</label>
@@ -94,23 +98,22 @@
       <button onclick="startGame()">Start Game</button>
     </div>
 
-    <div class="content" id="board" style="display: none;">
-      <div class="cell" onclick="placeMark(0)"></div>
-      <div class="cell" onclick="placeMark(1)"></div>
-      <div class="cell" onclick="placeMark(2)"></div>
-      <div class="cell" onclick="placeMark(3)"></div>
-      <div class="cell" onclick="placeMark(4)"></div>
-      <div class="cell" onclick="placeMark(5)"></div>
-      <div class="cell" onclick="placeMark(6)"></div>
-      <div class="cell" onclick="placeMark(7)"></div>
-      <div class="cell" onclick="placeMark(8)"></div>
+    <div class="container" id="board" style="display: none;">
+      <div class="content">
+        <div class="cell" onclick="placeMark(0)"></div>
+        <div class="cell" onclick="placeMark(1)"></div>
+        <div class="cell" onclick="placeMark(2)"></div>
+        <div class="cell" onclick="placeMark(3)"></div>
+        <div class="cell" onclick="placeMark(4)"></div>
+        <div class="cell" onclick="placeMark(5)"></div>
+        <div class="cell" onclick="placeMark(6)"></div>
+        <div class="cell" onclick="placeMark(7)"></div>
+        <div class="cell" onclick="placeMark(8)"></div>
+      </div>
     </div>
+    <div id="message"></div>
+    <button onclick="replay()" id="replayBtn" style="display: none;">Replay</button>
   </div>
-
-  <div id="message"></div>
-  <button onclick="replay()" id="replayBtn" style="display: none;">Replay</button>
-
-  
 
 
   <script>
